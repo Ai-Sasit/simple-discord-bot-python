@@ -3,7 +3,7 @@ import discord as dis
 from func import *
 
 client = com.Bot(command_prefix= "|")
-Token_ID = 'NDAxMzk2NzM5NDg1MDczNDA4.WljT2A.enQ6ZNRiXIa9T0TXroUl_fT66ZQ'
+Token_ID = 'insert token id'
 
 @client.event
 async def on_ready():

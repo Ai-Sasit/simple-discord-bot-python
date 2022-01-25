@@ -1,14 +1,12 @@
-import glob as G
-from pytube import YouTube
-import requests, datetime, pytz
+import requests, datetime, pytz, glob as G
 from youtube_search import YoutubeSearch
 from os import remove, rename
+from pytube import YouTube
 
 TubeList, NameList = [], []
 cth = requests.get('https://disease.sh/v3/covid-19/countries/th').json()
 vcc = requests.get('https://disease.sh/v3/covid-19/vaccine/coverage/countries?lastdays=1').json()
 tz = pytz.timezone('Asia/Bangkok')
-now1 = datetime.datetime.now(tz)
 
 def PyTube(search):
   if ("$music_temp.mp4" in G.glob("*.mp4")): remove("$music_temp.mp4")
@@ -35,7 +33,7 @@ def AddTubeList(Search):
 
 def PlayQueue(ctx, dis):
   global np_name 
-  print(f"[Log] Music was ended.")
+  print(f"[Log] {checktime()} - Music was ended.")
   if ("$music_temp.mp4" in G.glob("*.mp4")): remove("$music_temp.mp4")
   if len(TubeList) != 0:
     Inlist = TubeList.pop(0)
@@ -45,6 +43,7 @@ def PlayQueue(ctx, dis):
     return None
   result = YouTube(Inlist)
   np_name = result.title
+  print(f"[Log] {checktime()} - Play queue | {np_name}.")
   m4a = result.streams.filter(type="audio").first()
   m4a.download()
   name = G.glob("*.mp4")[0]
@@ -52,15 +51,22 @@ def PlayQueue(ctx, dis):
   ctx.voice_client.play(dis.FFmpegPCMAudio("$music_temp.mp4"), after=lambda e: PlayQueue(ctx, dis))
 
 def nowDate():
-    month_name = 'x มกราคม กุมภาพันธ์ มีนาคม เมษายน พฤษภาคม มิถุนายน กรกฎาคม สิงหาคม กันยายน ตุลาคม พฤศจิกายน ธันวาคม'.split()[now1.month]
-    thai_year = now1.year + 543
-    return "%d-%s-%d"%(now1.day, month_name, thai_year)
+  now1 = datetime.datetime.now(tz)
+  month_name = 'x มกราคม กุมภาพันธ์ มีนาคม เมษายน พฤษภาคม มิถุนายน กรกฎาคม สิงหาคม กันยายน ตุลาคม พฤศจิกายน ธันวาคม'.split()[now1.month]
+  thai_year = now1.year + 543
+  return "%d-%s-%d"%(now1.day, month_name, thai_year)
+
+def checktime():
+  t = datetime.datetime.now(tz)
+  return f"({t.day}/{t.month}/{t.year+543} {t.hour}:{t.minute})"
 
 def nowVaccine():
+  now1 = datetime.datetime.now(tz)
   for i in vcc:
     if i["country"] == "Thailand":
       date = now1.strftime("%m/%d/%y").split("/")
       date = list(map(str, date))
+      date[0] = str(int(date[0]))
       try:
         return "{:,}".format(i["timeline"]["/".join(date)])
       except:
